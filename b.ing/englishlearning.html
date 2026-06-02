@@ -1,0 +1,503 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ocean English Academy 🌊</title>
+    <style>
+        :root {
+            --deep-blue: #0047AB;
+            --ocean-blue: #006994;
+            --light-blue: #87CEEB;
+            --lava-color: #ff4500;
+        }
+
+        body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    /* Ganti gambar di bawah ini dengan nama file gambar latar luasmu */
+    background-image: url('beach.jpg'); 
+    background-size: cover; /* Agar gambar memenuhi layar */
+    background-position: center; /* Agar gambar berada di tengah */
+    background-attachment: fixed; /* Agar gambar diam di tempat saat discroll */
+    color: white;
+    margin: 0;
+    padding: 0;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+        header {
+    text-align: center;
+    padding: 20px;
+    width: 100%;
+    /* Ganti tulisan gambar-header.jpg dengan nama file gambarmu */
+    background-image: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url('turtleback.jpg');
+    background-size: cover;
+    background-position: center;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+}
+
+        h1 { margin: 0; font-size: 2.5rem; font-family: Cambria, Cochin, Georgia, Times, 'Times New Roman', serif; font-style: italic; }
+        h2 { margin: 10px 0; font-size: 2.5rem; color: #a9daee;font-family: monospace; }
+
+        .container {
+    width: 90%;
+    max-width: 800px;
+    margin: 20px auto;
+    
+    /* INI YANG DIUBAH: Menggunakan warna biru gelap kehitaman transparan */
+    background: rgba(0, 20, 45, 0.75); 
+    
+    padding: 20px;
+    border-radius: 15px;
+    
+    /* Efek blur sedikit dinaikkan agar background aslinya tidak terlalu mengganggu teks */
+    backdrop-filter: blur(8px); 
+    
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5); /* Bayangan kotak dipertegas */
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    color: white; /* Pastikan teks bawaan berwarna putih */
+}
+
+        /* Screens */
+        #lesson-screen, #game-screen, #result-screen { display: none; }
+
+        /* Tense Grid */
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .tense-card {
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            border: 2px solid rgba(255, 255, 255, 0.4);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+
+        .tense-card:hover {
+            transform: scale(1.05);
+            box-shadow: 0 6px 20px rgba(255,255,255,0.4);
+        }
+
+        .btn {
+            background-color: #20B2AA;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            font-size: 1.1rem;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 15px;
+            transition: 0.3s;
+        }
+        
+        .btn:hover { background-color: #008B8B; }
+        .btn-danger { background-color: #DC143C; }
+        .btn-danger:hover { background-color: #8B0000; }
+
+        /* Game Layout */
+        .game-area {
+            display: flex;
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .question-area {
+            flex: 2;
+            background: rgba(0, 0, 0, 0.4);
+            padding: 20px;
+            border-radius: 10px;
+        }
+
+        /* PERUBAHAN 1: Mengubah area blok tower menjadi biru kotak-kotak */
+        .tower-area {
+            flex: 1;
+            height: 400px;
+            background-color: #005f73; /* Warna dasar blok biru laut */
+            background-image: 
+                linear-gradient(rgba(255, 255, 255, 0.15) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255, 255, 255, 0.15) 1px, transparent 1px);
+            background-size: 20px 20px; /* Ukuran kotak/blok */
+            border-radius: 10px;
+            position: relative;
+            border: 3px solid #FFF;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+        }
+
+        .player-icon {
+            font-size: 2.5rem;
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            transition: bottom 0.5s ease-in-out;
+            z-index: 10;
+        }
+
+        .lava {
+            width: 100%;
+            background: linear-gradient(0deg, #8B0000 0%, var(--lava-color) 100%);
+            position: absolute;
+            bottom: 0;
+            transition: height 0.5s ease-in-out;
+            opacity: 0.9;
+            z-index: 5;
+        }
+
+        input[type="text"] {
+            padding: 10px;
+            font-size: 1.2rem;
+            border-radius: 5px;
+            border: none;
+            width: 80%;
+            margin-bottom: 10px;
+        }
+
+        .feedback {
+            font-size: 1.2rem;
+            font-weight: bold;
+            min-height: 25px;
+            margin-top: 10px;
+        }
+
+        .stats {
+            display: flex;
+            justify-content: space-between;
+            background: var(--deep-blue);
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 15px;
+        }
+
+        /* Desain pijakan balok putih */
+        .safe-blocks {
+            width: 60px; /* Lebar tumpukan blok */
+            background-color: #f8f9fa; /* Warna putih */
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            transition: height 0.5s ease-in-out;
+            z-index: 4; /* Diatur ke 4 agar tenggelam di bawah lava (yang z-index nya 5) */
+            border-radius: 4px 4px 0 0;
+    /* Memberikan efek garis pemisah agar terlihat seperti ditumpuk */
+            background-image: repeating-linear-gradient(
+                0deg,
+                transparent,
+                transparent 18px,
+                #ced4da 18px,
+                #ced4da 20px
+                )           ;
+                box-shadow: 0 0 15px rgba(255, 255, 255, 0.3);
+}
+
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>Ocean English Academy 🐋</h1>
+        <p>Master all 16 tenses and escape the underwater volcano! 🌋</p>
+    </header>
+
+    <div id="home-screen" class="container">
+        <h2>Select a Tense to Learn 🐠</h2>
+        <div class="grid" id="tense-grid">
+            </div>
+    </div>
+
+    <div id="lesson-screen" class="container">
+        <h2 id="lesson-title">Lesson Title</h2>
+        <div id="lesson-content" style="font-size: 1.2rem; line-height: 1.6; margin-bottom: 20px;"></div>
+        <button class="btn" onclick="startGame()">Start Lava Escape Game 🐢</button>
+        <button class="btn btn-danger" onclick="showScreen('home-screen')">Back to Menu 🔙</button>
+    </div>
+
+    <div id="game-screen" class="container">
+        <h2>Lava Escape! 🐙</h2>
+        <div class="stats">
+            <span id="question-counter">Question: 1/15</span>
+            <span id="player-blocks">Your Blocks: 5</span>
+            <span id="lava-blocks">Lava Blocks: 0</span>
+        </div>
+        
+        <div class="game-area">
+            <div class="question-area">
+                <h3 id="question-text">Fill in the blank</h3>
+                <p><i>Type the correct word(s) based on the grammar rule.</i></p>
+                <input type="text" id="answer-input" placeholder="Type your answer here..." autocomplete="off">
+                <br>
+                <button class="btn" onclick="submitAnswer()">Submit Answer 🐬</button>
+                <div class="feedback" id="feedback-text"></div>
+            </div>
+            
+            <div class="tower-area">
+                <div class="safe-blocks" id="safe-blocks"></div> 
+                <div class="player-icon" id="player">🐢</div>
+                <div class="lava" id="lava"></div>
+            </div>
+        </div>
+    </div>
+
+    <div id="result-screen" class="container" style="text-align: center;">
+        <h1 id="result-title" style="font-size: 3rem;"></h1>
+        <p id="result-message" style="font-size: 1.5rem;"></p>
+        <button class="btn" onclick="showScreen('home-screen')">Back to Menu 🌊</button>
+    </div>
+
+    <script>
+        // Data Structure for the 16 Tenses
+        const tensesData = [
+            {
+                id: "simple_present",
+                name: "Simple Present Tense",
+                icon: "🦀",
+                material: "<p>The <b>Simple Present Tense</b> is used to describe habits, general truths, and fixed arrangements.</p><p><b>Formula:</b><br> (+) Subject + V1 (s/es) + Object<br> (-) Subject + do/does + not + V1 + Object<br> (?) Do/Does + Subject + V1 + Object?<br></p><p> es is used when the subject is He, She & It and the verb ends with O, CH, SH, X, Z</p><p><b>Example:</b> She <i>swims</i> in the ocean every day.</p>",
+                questions: [
+                    { q: "The dolphin ___ (jump) out of the water every morning.", a: "jumps" },
+                    { q: "I ___ (like) to explore coral reefs.", a: "like" },
+                    { q: "Water ___ (boil) at 100 degrees Celsius.", a: "boils" },
+                    { q: "They ___ (not/eat) seaweed.", a: "do not eat" },
+                    { q: "___ the shark (sleep) at night?", a: "does the shark sleep" },
+                    { q: "My turtle ___ (walk) very slowly.", a: "walks" },
+                    { q: "We ___ (clean) the beach on Sundays.", a: "clean" },
+                    { q: "The ocean ___ (cover) most of the Earth.", a: "covers" },
+                    { q: "She ___ (catch) fish for a living.", a: "catches" },
+                    { q: "He ___ (not/know) how to scuba dive.", a: "does not know" },
+                    { q: "Whales ___ (sing) beautiful songs.", a: "sing" },
+                    { q: "___ you (see) the jellyfish?", a: "do you see" },
+                    { q: "The submarine ___ (dive) deep into the trench.", a: "dives" },
+                    { q: "I ___ (study) marine biology.", a: "study" },
+                    { q: "Crabs ___ (walk) sideways.", a: "walk" }
+                ]
+            },
+            { id: "present_continuous", name: "Present Continuous", material: "Under construction.", questions: [] },
+            { id: "present_perfect", name: "Present Perfect",  material: "Under construction.", questions: [] },
+            { id: "present_perfect_continuous", name: "Present Perfect Cont.", material: "Under construction.", questions: [] },
+            {
+                id: "simple_past",
+                name: "Simple Past Tense",
+                icon: "🐙", // Ikonnya akan diabaikan oleh kodemu yang baru, jadi biarkan saja
+                material: "<p>The <b>Simple Past Tense</b> is used to talk about actions or situations that started and finished in the past.</p><p><b>Time Signals:</b> yesterday, last week, ago, in 2020.</p><p><b>Formula:</b><br> (+) Subject + V2 + Object<br> (-) Subject + did + not + V1 + Object<br> (?) Did + Subject + V1 + Object?</p><p><b>Example:</b> The diver <i>found</i> a beautiful pearl yesterday.</p>",
+                questions: [
+                    { q: "The diver ___ (see) a beautiful coral reef yesterday.", a: "saw" },
+                    { q: "We ___ (visit) the marine park last summer.", a: "visited" },
+                    { q: "___ the dolphins (follow) your boat?", a: "did the dolphins follow" },
+                    { q: "The giant squid ___ (not/appear) on the camera.", a: "did not appear" },
+                    { q: "I ___ (find) a starfish on the beach this morning.", a: "found" },
+                    { q: "They ___ (sail) across the Pacific Ocean in 2020.", a: "sailed" },
+                    { q: "She ___ (swim) with the sea turtles yesterday.", a: "swam" },
+                    { q: "___ you (catch) any fish during the trip?", a: "did you catch" },
+                    { q: "The submarine ___ (dive) into the deep trench last week.", a: "dived" },
+                    { q: "He ___ (not/know) how to surf when he was young.", a: "did not know" },
+                    { q: "The waves ___ (crash) loudly against the rocks last night.", a: "crashed" },
+                    { q: "A seagull ___ (steal) my sandwich at the beach!", a: "stole" },
+                    { q: "We ___ (not/see) any sharks during the dive.", a: "did not see" },
+                    { q: "___ the storm (damage) the coral reef?", a: "did the storm damage" },
+                    { q: "The scientist ___ (discover) a new species of jellyfish last year.", a: "discovered" }
+                ]
+            },
+            { id: "past_continuous", name: "Past Continuous",  material: "Under construction.", questions: [] },
+            { id: "past_perfect", name: "Past Perfect",  material: "Under construction.", questions: [] },
+            { id: "past_perfect_continuous", name: "Past Perfect Cont.", material: "Under construction.", questions: [] },
+            { id: "simple_future", name: "Simple Future", material: "Under construction.", questions: [] },
+            { id: "future_continuous", name: "Future Continuous", material: "Under construction.", questions: [] },
+            { id: "future_perfect", name: "Future Perfect", material: "Under construction.", questions: [] },
+            { id: "future_perfect_continuous", name: "Future Perfect Cont.",  material: "Under construction.", questions: [] },
+            { id: "past_future", name: "Past Future",  material: "Under construction.", questions: [] },
+            { id: "past_future_continuous", name: "Past Future Cont.", material: "Under construction.", questions: [] },
+            { id: "past_future_perfect", name: "Past Future Perfect", material: "Under construction.", questions: [] },
+            { id: "past_future_perfect_continuous", name: "Past Future Perf. Cont.", icon: "🔱", material: "Under construction.", questions: [] }
+        ];
+
+        // Game Variables
+        let currentTense = null;
+        let currentQuestionIndex = 0;
+        let playerBlocks = 5; 
+        let lavaBlocks = 0;
+        const maxBlocks = 110; 
+
+        // Initialize Home Screen
+        function init() {
+            const grid = document.getElementById("tense-grid");
+            
+            // PERUBAHAN 2: Daftar gradasi warna latar belakang yang berbeda untuk 16 kotak tenses
+            const oceanGradients = [
+                "url('whale.jpg')",
+                "url('turtle.jpg')",
+                "url('sharkmartil.jpg')",         
+                "url('shark.jpg')",
+                "url('seastar.jpg')",
+                "url('seahorse.jpg')",
+                "url('pari.jpg')",
+                "url('otter.jpg')",
+                "url('orca.jpg')",
+                "url('jellyfish.jpg')",
+                "url('dolphin.jpg')",
+                "url('dogsea.jpg')",
+                "url('crab.jpg')",
+                "url('clownfish.jpg')",
+                "url('beluga.jpg')",
+                "url('2orca.jpg')"
+            ];
+
+            tensesData.forEach((tense, index) => {
+        const card = document.createElement("div");
+        card.className = "tense-card";
+        
+        // 2. Terapkan gambar ke kotak
+        card.style.backgroundImage = oceanGradients[index % oceanGradients.length];
+        
+        // 3. Pastikan gambar pas di dalam kotak dan tidak terpotong aneh
+        card.style.backgroundSize = "cover";
+        card.style.backgroundPosition = "center";
+        
+        // 4. (Opsional) Tambahkan bayangan hitam transparan agar teks putih tetap terbaca
+        // 4. (Opsional) Tambahkan bayangan hitam transparan agar teks putih tetap terbaca
+        card.style.boxShadow = "inset 0 0 0 1000px rgba(0,0,0,0.4)"; 
+
+        card.innerHTML = `<h3>${tense.name}</h3>`; // Hapus bagian <div...> beserta ${tense.icon}
+        card.onclick = () => openLesson(index);
+        grid.appendChild(card);
+    });
+}
+
+        // Screen Navigation
+        function showScreen(screenId) {
+            document.getElementById("home-screen").style.display = "none";
+            document.getElementById("lesson-screen").style.display = "none";
+            document.getElementById("game-screen").style.display = "none";
+            document.getElementById("result-screen").style.display = "none";
+            document.getElementById(screenId).style.display = "block";
+        }
+
+        // Open Lesson
+        function openLesson(index) {
+            currentTense = tensesData[index];
+            document.getElementById("lesson-title").innerText = currentTense.name + " " + currentTense.icon;
+            document.getElementById("lesson-content").innerHTML = currentTense.material;
+            
+            if(currentTense.questions.length < 15) {
+                document.getElementById("lesson-content").innerHTML += "<br><b style='color:#ffcccb;'>Note: Questions for this tense are not fully added yet! Please select Simple Present Tense to test the game.</b>";
+            }
+            
+            showScreen("lesson-screen");
+        }
+
+        // Start Game
+        function startGame() {
+            if (currentTense.questions.length === 0) {
+                alert("Sorry, questions for this tense haven't been added yet!");
+                return;
+            }
+            currentQuestionIndex = 0;
+            playerBlocks = 5;
+            lavaBlocks = 0;
+            updateVisuals();
+            loadQuestion();
+            document.getElementById("feedback-text").innerText = "";
+            showScreen("game-screen");
+        }
+
+        // Load Question
+        function loadQuestion() {
+            const qData = currentTense.questions[currentQuestionIndex];
+            document.getElementById("question-text").innerText = `${currentQuestionIndex + 1}. ${qData.q}`;
+            document.getElementById("answer-input").value = "";
+            document.getElementById("question-counter").innerText = `Question: ${currentQuestionIndex + 1}/15`;
+            document.getElementById("answer-input").focus();
+        }
+
+        // Submit Answer
+        function submitAnswer() {
+            const inputEl = document.getElementById("answer-input");
+            let userAnswer = inputEl.value.trim().toLowerCase();
+            let correctAnswer = currentTense.questions[currentQuestionIndex].a.toLowerCase();
+            const feedback = document.getElementById("feedback-text");
+
+            if (userAnswer === "") {
+                feedback.innerText = "Please type an answer! 🦀";
+                feedback.style.color = "#FFD700";
+                return;
+            }
+
+            if (userAnswer === correctAnswer) {
+                playerBlocks += 7; 
+                feedback.innerText = "Correct! +7 Blocks 🌟";
+                feedback.style.color = "#32CD32"; 
+            } else {
+                feedback.innerText = `Wrong! The correct answer was "${correctAnswer}".`;
+                feedback.style.color = "#DC143C"; 
+            }
+
+            lavaBlocks += 5; 
+            currentQuestionIndex++;
+            updateVisuals();
+
+            setTimeout(() => {
+                if (lavaBlocks >= playerBlocks) {
+                    endGame(false); 
+                } else if (currentQuestionIndex >= 15 || currentQuestionIndex >= currentTense.questions.length) {
+                    endGame(true); 
+                } else {
+                    loadQuestion();
+                }
+            }, 1500); 
+        }
+
+        document.getElementById("answer-input").addEventListener("keypress", function(event) {
+            if (event.key === "Enter") {
+                event.preventDefault();
+                submitAnswer();
+            }
+        });
+
+        // Update Game Visuals (Blocks/Tower)
+        function updateVisuals() {
+            document.getElementById("player-blocks").innerText = `Your Blocks: ${playerBlocks}`;
+            document.getElementById("lava-blocks").innerText = `Lava Blocks: ${lavaBlocks}`;
+
+            const playerEl = document.getElementById("player");
+            const lavaEl = document.getElementById("lava");
+            const safeBlocksEl = document.getElementById("safe-blocks");
+
+            const playerHeight = Math.min((playerBlocks / maxBlocks) * 100, 90); 
+            const lavaHeight = Math.min((lavaBlocks / maxBlocks) * 100, 100);
+
+            playerEl.style.bottom = `${playerHeight}%`;
+            lavaEl.style.height = `${lavaHeight}%`;
+            safeBlocksEl.style.height = `${playerHeight}%`; 
+}
+
+
+        // End Game
+        function endGame(isWin) {
+            showScreen("result-screen");
+            const title = document.getElementById("result-title");
+            const message = document.getElementById("result-message");
+
+            if (isWin) {
+                title.innerText = "You Escaped! 🏆🌊";
+                title.style.color = "#32CD32";
+                message.innerText = `Great job! You survived the lava and mastered the ${currentTense.name}.`;
+            } else {
+                title.innerText = "Game Over! 🌋💀";
+                title.style.color = "#DC143C";
+                message.innerText = "Oh no! The lava caught up to you. Keep practicing your grammar and try again!";
+            }
+        }
+
+        window.onload = init;
+    </script>
+</body>
+</html>
